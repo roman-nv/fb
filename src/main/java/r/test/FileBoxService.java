@@ -4,67 +4,82 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.MediaType;
-/*
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.AutoConfigureOrder;
-import org.springframework.boot.autoconfigure.condition.*;
-import org.springframework.boot.autoconfigure.condition.ConditionMessage.Style;
-import org.springframework.context.annotation.*;
-import org.springframework.core.Ordered;
-import org.springframework.core.env.Environment;
-import org.springframework.core.type.AnnotatedTypeMetadata;
-import org.springframework.util.ClassUtils;
-*/
+import javax.ws.rs.PathParam;
 
-// The Java class will be hosted at the URI path "/fileboxservice"
+import java.io.IOException;
+
+import org.apache.log4j.Logger;
+
 
 @Path("/fileboxservice/")
 public class FileBoxService {
-	
+
+	static Logger log = Logger.getLogger(FileBoxService.class.getName());
+
     final static String path="c:\\java_projects\\test\\";
- 
+
     private RDir directory;
-    
+
     public FileBoxService() {
        directory = new RDir(path);
        directory.setfilelist();
-    } 
-             
+    }
+
     @GET
     @Produces("text/html")
     @Path("/path/")
     public String getpath() {
         // Return path
         return "<html lang=\"en\"><body><font color=\"#0000FF\">"+path+"</body></html>";
-    }  
-    
+    }
+
     @GET
     @Produces("text/html")
-    @Path("/ls/")  
+    @Path("/ls/")
     public String listfilesHTML() {
-         
+
         // Return list of files as HTML
-        String str1="";                  
-        
+        String str1="";
+
         String str2="";
-        
+
         str1="<html lang=\"en\"><body><font color=\"#000000\" style=\"bold\">Files in directory: "+path+"</font>";
-        
-    
+
+
         str2= str1 + directory.getfilelistHTML() + "</body></html>";
-               
-        return str2; 
-    }  
-    
+
+        return str2;
+    }
+
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    @Path("/lsjson/")  
+    @Path("/lsjson/")
     public String listfilesJSON() {
-         
+
         // Return list of files as JSON
-        
+
         return directory.getfilelistJSON();
-    }  
-    
-    
+    }
+    @GET
+	@Path("/getfilebyname/{fname}/")
+	public byte[] getfilebyname(@PathParam("fname") String name) {
+         byte[] emptyfile = "The file is empty".getBytes();
+    	 try  {
+    		byte[] f = directory.getfile(name);
+    		if (f.length > 0) {
+            	return f;
+            }
+         }
+
+         catch (IOException ex) {
+      	    ex.printStackTrace();
+         }
+	  	 return emptyfile;
+    }
+
+    @GET
+	@Path("/getfiletest/")
+    public String getfilebyname() {
+    	return directory.getfiletest();
+    }
 }
