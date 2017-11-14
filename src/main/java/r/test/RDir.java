@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.io.IOException;
 
+//import org.apache.log4j.Logger;
 
 public class RDir {
     private String path;
@@ -50,7 +51,19 @@ public class RDir {
     public List<Path> getfilelist () {
     	  return filelist;
     }
+    public void listSourceFiles() {
 
+        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(p1)) {
+            for (Path p : directoryStream) {
+            	if (!Files.isDirectory(p))
+                filelist.add(p);
+            }
+        } catch (IOException ex) {
+        	   //logger.error("[FileBox]Directory " + path + "not found", ex);
+        	   ex.printStackTrace();
+        }
+    }
+/*
     public String getfilelistHTML () {
     	  String html="";
     	  for (Path p : this.filelist) {
@@ -58,7 +71,7 @@ public class RDir {
         }
     	  return html;
     }
-
+*/
 
     public String getfilelistJSON () {
     	  List<String> ll = new ArrayList<String>();
@@ -82,23 +95,10 @@ public class RDir {
         j = j + "]}";
     	  return j;
     }
-    public void listSourceFiles() {
 
-        try (DirectoryStream<Path> directoryStream = Files.newDirectoryStream(p1)) {
-            for (Path p : directoryStream) {
-            	if (!Files.isDirectory(p))
-                filelist.add(p);
-            }
-        } catch (IOException ex) {
-        	   ex.printStackTrace();
-        }
-    }
     //-----------------------------------------------------------
     public  byte[] getfile  (String name) throws IOException {
-    	/*
-    	byte[] filecontent = Files.readAllBytes(this.filelist.get(0));
-    	return filecontent;
-*/
+
         Path tmp_path = Paths.get(this.path+name);
         if (this.filelist.contains(tmp_path)) {
 
@@ -106,14 +106,15 @@ public class RDir {
      	   return filecontent;
        }
        else {
+    	   //logger.error("[FileBox]This is error : " + parameter);
     	   byte[] filecontent = "No such file".getBytes();
     	   return filecontent;
        }
 
-     //return this.filelist.get(0);
     }
+ /*
     public String getfiletest  ()  {
     	return this.filelist.get(0).toString();
     }
-
+*/
 }
